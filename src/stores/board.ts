@@ -59,6 +59,18 @@ export const useBoardStore = defineStore('board', () => {
     toColumn.cards.push(card)
   }
 
+  function moveColumn(columnId: string, direction: 'left' | 'right') {
+    const index = columns.value.findIndex((c) => c.id === columnId)
+    if (index === -1) return
+    const toIndex = direction === 'left' ? index - 1 : index + 1
+    if (toIndex < 0 || toIndex >= columns.value.length) return
+
+    const [column] = columns.value.splice(index, 1)
+    if (column) {
+      columns.value.splice(toIndex, 0, column)
+    }
+  }
+
   function addColumn(title: string) {
     const newColumn: Column = {
       id: crypto.randomUUID(),
@@ -79,5 +91,30 @@ export const useBoardStore = defineStore('board', () => {
     columns.value = columns.value.filter((c) => c.id !== columnId)
   }
 
-  return { columns, boardName, setBoardName, addCard, deleteCard, moveCard, addColumn, renameColumn, deleteColumn }
+  function clearBoard() {
+    columns.value.forEach((c) => (c.cards = []))
+  }
+
+  function clearColumn(columnId: string) {
+    const column = columns.value.find((c) => c.id === columnId)
+    if (column) {
+      column.cards = []
+    }
+  }
+
+  function deleteBoard() {
+    if (confirm('Are you sure you want to delete all columns and cards? This will reset the board to default.')) {
+      columns.value = JSON.parse(JSON.stringify(DEFAULT_COLUMNS))
+      boardName.value = 'Kaban Board'
+    }
+  }
+
+  function setColumnLimit(columnId: string, limit?: number) {
+    const column = columns.value.find((c) => c.id === columnId)
+    if (column) {
+      column.maxCards = limit
+    }
+  }
+
+  return { columns, boardName, setBoardName, addCard, deleteCard, moveCard, moveColumn, addColumn, renameColumn, deleteColumn, clearBoard, clearColumn, deleteBoard, setColumnLimit }
 })

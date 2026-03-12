@@ -47,7 +47,9 @@ const store = useBoardStore()
 .card-title {
   flex: 1;
   font-size: 0.9rem;
-  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--color-text-primary);
   transition: color 0.2s ease;
 }

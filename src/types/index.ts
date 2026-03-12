@@ -7,4 +7,5 @@ export interface Column {
   id: string
   title: string
   cards: Card[]
+  maxCards?: number
 }

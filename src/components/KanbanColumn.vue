@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanCard from './KanbanCard.vue'
 import type { Column } from '@/types'
@@ -17,6 +17,50 @@ const showForm = ref(false)
 const isRenamingColumn = ref(false)
 const newColumnTitle = ref(props.column.title)
 const renameInput = ref<HTMLInputElement | null>(null)
+const showMenu = ref(false)
+
+function toggleMenu() {
+  showMenu.value = !showMenu.value
+}
+
+function closeMenu() {
+  showMenu.value = false
+}
+
+function clearColumn() {
+  if (confirm(`Clear all cards from "${props.column.title}"?`)) {
+    store.clearColumn(props.column.id)
+    closeMenu()
+  }
+}
+
+function setLimit() {
+  const currentLimit = props.column.maxCards || ''
+  const input = prompt(`Set max number of tiles for "${props.column.title}" (leave empty for no limit):`, currentLimit.toString())
+  if (input !== null) {
+    const limit = input === '' ? undefined : parseInt(input, 10)
+    if (limit === undefined || !isNaN(limit)) {
+      store.setColumnLimit(props.column.id, limit)
+    }
+  }
+  closeMenu()
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  const menu = document.querySelector(`.column-${props.column.id} .menu-dropdown`)
+  const button = document.querySelector(`.column-${props.column.id} .btn-column-menu`)
+  if (menu && !menu.contains(event.target as Node) && button && !button.contains(event.target as Node)) {
+    closeMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+})
 
 function submitCard() {
   const title = newCardTitle.value.trim()
@@ -62,16 +106,35 @@ function deleteColumn() {
 </script>
 
 <template>
-  <div class="column">
+  <div class="column" :class="[`column-${props.column.id}`, { 'limit-exceeded': props.column.maxCards && props.column.cards.length > props.column.maxCards }]">
     <div class="column-header">
       <div v-if="isRenamingColumn" class="column-rename">
         <input ref="renameInput" v-model="newColumnTitle" class="rename-input" @blur="submitRenameColumn"
-          @keyup.enter="submitRenameColumn" @keyup.esc="cancelRenameColumn" />
+          @keyup.enter="submitRenameColumn" @keyup.esc="cancelRenameColumn" maxlength="30" />
       </div>
       <div v-else class="column-title-group">
         <h2 class="column-title" @click="startRenameColumn">{{ props.column.title }}</h2>
-        <span class="column-count">{{ props.column.cards.length }}</span>
-        <button class="btn-column-menu" title="Delete column" @click="deleteColumn">⋮</button>
+        <span class="column-count">
+          {{ props.column.cards.length }}{{ props.column.maxCards ? ` / ${props.column.maxCards}` : '' }}
+        </span>
+        <div class="column-actions">
+          <button class="btn-icon" :disabled="props.isFirst" title="Move left"
+            @click="store.moveColumn(props.column.id, 'left')">
+            ←
+          </button>
+          <button class="btn-icon" :disabled="props.isLast" title="Move right"
+            @click="store.moveColumn(props.column.id, 'right')">
+            →
+          </button>
+        </div>
+        <div class="column-menu-container">
+          <button class="btn-column-menu" title="Column menu" @click="toggleMenu">⋮</button>
+          <div v-if="showMenu" class="menu-dropdown">
+            <button class="menu-item" @click="setLimit">Set limit...</button>
+            <button class="menu-item" @click="clearColumn">Clear Column</button>
+            <button class="menu-item delete-item" @click="deleteColumn">Delete Column</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -83,7 +146,7 @@ function deleteColumn() {
 
     <div v-if="showForm" class="add-form">
       <input v-model="newCardTitle" class="add-input" placeholder="Card title..." autofocus @keyup.enter="submitCard"
-        @keyup.esc="cancelAdd" />
+        @keyup.esc="cancelAdd" maxlength="200" />
       <div class="add-form-actions">
         <button class="btn-primary" @click="submitCard">Add</button>
         <button class="btn-secondary" @click="cancelAdd">Cancel</button>
@@ -99,12 +162,18 @@ function deleteColumn() {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 1rem;
-  width: 280px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.limit-exceeded {
+  background-color: var(--color-delete-bg);
+  border-color: var(--color-delete);
 }
 
 .column-header {
@@ -117,8 +186,53 @@ function deleteColumn() {
 .column-title-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex: 1;
+}
+
+.column-menu-container {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem;
+  z-index: 100;
+  min-width: 140px;
+}
+
+.menu-item {
+  background: none;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background: var(--color-button-hover);
+}
+
+.delete-item {
+  color: var(--color-delete);
+}
+
+.delete-item:hover {
+  background: var(--color-delete-bg);
 }
 
 .column-rename {
@@ -138,6 +252,34 @@ function deleteColumn() {
   outline: none;
 }
 
+.column-actions {
+  display: flex;
+  gap: 0.1rem;
+  margin-left: auto;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--color-button-hover);
+  color: var(--color-text-primary);
+}
+
+.btn-icon:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
 .column-title {
   font-size: 1rem;
   font-weight: 600;
@@ -147,6 +289,10 @@ function deleteColumn() {
   cursor: pointer;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .column-title:hover {

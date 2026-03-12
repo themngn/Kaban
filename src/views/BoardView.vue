@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanColumn from '@/components/KanbanColumn.vue'
 import { useTheme } from '@/composables/useTheme'
@@ -11,6 +11,43 @@ const newColumnTitle = ref('New Column')
 const isEditingBoardName = ref(false)
 const editingBoardName = ref('')
 const boardNameInput = ref<HTMLInputElement | null>(null)
+const showMenu = ref(false)
+
+function toggleMenu() {
+  showMenu.value = !showMenu.value
+}
+
+function closeMenu() {
+  showMenu.value = false
+}
+
+function clearBoard() {
+  if (confirm('Clear all cards from all columns?')) {
+    store.clearBoard()
+    closeMenu()
+  }
+}
+
+function deleteBoard() {
+  store.deleteBoard()
+  closeMenu()
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  const menu = document.querySelector('.menu-dropdown')
+  const button = document.querySelector('.btn-board-menu')
+  if (menu && !menu.contains(event.target as Node) && button && !button.contains(event.target as Node)) {
+    closeMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+})
 
 function startEditingBoardName() {
   editingBoardName.value = store.boardName
@@ -48,17 +85,26 @@ function addNewColumn() {
         {{ store.boardName }}
       </h1>
       <input v-else ref="boardNameInput" v-model="editingBoardName" class="board-title-input" @blur="saveBoardName"
-        @keyup.enter="saveBoardName" @keyup.esc="cancelEditingBoardName" />
-      <button class="btn-theme-toggle" @click="toggleTheme" :title="`Switch to ${isDark ? 'light' : 'dark'} theme`">
-        {{ isDark ? '☀️' : '🌙' }}
-      </button>
+        @keyup.enter="saveBoardName" @keyup.esc="cancelEditingBoardName" maxlength="50" />
+      <div class="header-actions">
+        <div class="board-menu-container">
+          <button class="btn-board-menu" @click="toggleMenu">⋮</button>
+          <div v-if="showMenu" class="menu-dropdown">
+            <button class="menu-item" @click="clearBoard">Clear Board</button>
+            <button class="menu-item delete-item" @click="deleteBoard">Delete Board</button>
+          </div>
+        </div>
+        <button class="btn-theme-toggle" @click="toggleTheme" :title="`Switch to ${isDark ? 'light' : 'dark'} theme`">
+          {{ isDark ? '☀️' : '🌙' }}
+        </button>
+      </div>
     </div>
     <div class="board">
       <KanbanColumn v-for="(column, index) in store.columns" :key="column.id" :column="column" :is-first="index === 0"
         :is-last="index === store.columns.length - 1" />
       <div class="add-column-card">
         <input v-model="newColumnTitle" class="add-column-input" placeholder="Column name..."
-          @keyup.enter="addNewColumn" />
+          @keyup.enter="addNewColumn" maxlength="30" />
         <button class="btn-add-column" @click="addNewColumn">+ Add Column</button>
       </div>
     </div>
@@ -94,6 +140,10 @@ function addNewColumn() {
   cursor: pointer;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .board-title:hover {
@@ -112,11 +162,81 @@ function addNewColumn() {
   outline: none;
   width: auto;
   min-width: 200px;
+  max-width: 400px;
+}
+
+.header-actions {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-board-menu {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.btn-board-menu:hover {
+  background: var(--color-button-hover);
+}
+
+.board-menu-container {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  z-index: 100;
+  min-width: 150px;
+}
+
+.menu-item {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+  background: var(--color-button-hover);
+}
+
+.delete-item {
+  color: var(--color-delete);
+}
+
+.delete-item:hover {
+  background: var(--color-delete-bg);
 }
 
 .btn-theme-toggle {
-  position: absolute;
-  right: 0;
   background: none;
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -157,7 +277,7 @@ function addNewColumn() {
   border: 2px dashed var(--color-border);
   border-radius: 10px;
   padding: 1rem;
-  width: 280px;
+  width: 320px;
   flex-shrink: 0;
   min-height: 200px;
   transition: all 0.3s ease;
