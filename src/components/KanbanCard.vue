@@ -56,6 +56,12 @@ const store = useBoardStore()
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
+  user-select: none;
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
 }
 
 .card-title {

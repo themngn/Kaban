@@ -119,6 +119,17 @@ function deleteColumn() {
     store.deleteColumn(props.column.id)
   }
 }
+
+const dragOptions = {
+  forceFallback: true,
+  fallbackOnBody: true,
+  fallbackClass: 'fallback-card',
+  setData: (dataTransfer: DataTransfer) => {
+    const img = new window.Image()
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    dataTransfer.setDragImage(img, 0, 0)
+  },
+}
 </script>
 
 <template>
@@ -185,6 +196,9 @@ function deleteColumn() {
       item-key="id"
       class="card-list"
       ghost-class="ghost-card"
+      drag-class="drag-card"
+      :animation="200"
+      v-bind="dragOptions"
     >
       <template #item="{ element }">
         <KanbanCard
@@ -500,5 +514,18 @@ function deleteColumn() {
 .ghost-card {
   opacity: 0.5;
   background: var(--color-bg-secondary);
+}
+
+.drag-card {
+  opacity: 0;
+}
+
+.fallback-card {
+  opacity: 1 !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform: rotate(2deg);
+  cursor: grabbing !important;
+  z-index: 1000;
+  pointer-events: none !important;
 }
 </style>
