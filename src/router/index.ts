@@ -3,9 +3,7 @@ import BoardView from '@/views/BoardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    { path: '/', component: BoardView },
-  ],
+  routes: [{ path: '/', component: BoardView }],
 })
 
 export default router

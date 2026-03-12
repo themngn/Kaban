@@ -37,26 +37,14 @@ function cancelAdd() {
     </div>
 
     <div class="card-list">
-      <KanbanCard
-        v-for="card in props.column.cards"
-        :key="card.id"
-        :card="card"
-        :column-id="props.column.id"
-        :can-move-left="!props.isFirst"
-        :can-move-right="!props.isLast"
-      />
+      <KanbanCard v-for="card in props.column.cards" :key="card.id" :card="card" :column-id="props.column.id"
+        :can-move-left="!props.isFirst" :can-move-right="!props.isLast" />
       <p v-if="props.column.cards.length === 0" class="empty-state">No cards yet</p>
     </div>
 
     <div v-if="showForm" class="add-form">
-      <input
-        v-model="newCardTitle"
-        class="add-input"
-        placeholder="Card title..."
-        autofocus
-        @keyup.enter="submitCard"
-        @keyup.esc="cancelAdd"
-      />
+      <input v-model="newCardTitle" class="add-input" placeholder="Card title..." autofocus @keyup.enter="submitCard"
+        @keyup.esc="cancelAdd" />
       <div class="add-form-actions">
         <button class="btn-primary" @click="submitCard">Add</button>
         <button class="btn-secondary" @click="cancelAdd">Cancel</button>
