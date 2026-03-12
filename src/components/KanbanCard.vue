@@ -16,15 +16,27 @@ const store = useBoardStore()
   <div class="card">
     <span class="card-title">{{ props.card.title }}</span>
     <div class="card-actions">
-      <button class="btn-icon" :disabled="!props.canMoveLeft" title="Move left"
-        @click="store.moveCard(props.columnId, props.card.id, 'left')">
+      <button
+        class="btn-icon"
+        :disabled="!props.canMoveLeft"
+        title="Move left"
+        @click="store.moveCard(props.columnId, props.card.id, 'left')"
+      >
         ←
       </button>
-      <button class="btn-icon" :disabled="!props.canMoveRight" title="Move right"
-        @click="store.moveCard(props.columnId, props.card.id, 'right')">
+      <button
+        class="btn-icon"
+        :disabled="!props.canMoveRight"
+        title="Move right"
+        @click="store.moveCard(props.columnId, props.card.id, 'right')"
+      >
         →
       </button>
-      <button class="btn-icon btn-delete" title="Delete card" @click="store.deleteCard(props.columnId, props.card.id)">
+      <button
+        class="btn-icon btn-delete"
+        title="Delete card"
+        @click="store.deleteCard(props.columnId, props.card.id)"
+      >
         ✕
       </button>
     </div>
@@ -41,7 +53,9 @@ const store = useBoardStore()
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   gap: 0.5rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .card-title {
@@ -69,7 +83,9 @@ const store = useBoardStore()
   font-size: 0.8rem;
   color: var(--color-text-secondary);
   line-height: 1;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-icon:hover:not(:disabled) {

@@ -36,7 +36,12 @@ function deleteBoard() {
 const handleClickOutside = (event: MouseEvent) => {
   const menu = document.querySelector('.menu-dropdown')
   const button = document.querySelector('.btn-board-menu')
-  if (menu && !menu.contains(event.target as Node) && button && !button.contains(event.target as Node)) {
+  if (
+    menu &&
+    !menu.contains(event.target as Node) &&
+    button &&
+    !button.contains(event.target as Node)
+  ) {
     closeMenu()
   }
 }
@@ -84,8 +89,16 @@ function addNewColumn() {
       <h1 v-if="!isEditingBoardName" class="board-title" @click="startEditingBoardName">
         {{ store.boardName }}
       </h1>
-      <input v-else ref="boardNameInput" v-model="editingBoardName" class="board-title-input" @blur="saveBoardName"
-        @keyup.enter="saveBoardName" @keyup.esc="cancelEditingBoardName" maxlength="50" />
+      <input
+        v-else
+        ref="boardNameInput"
+        v-model="editingBoardName"
+        class="board-title-input"
+        @blur="saveBoardName"
+        @keyup.enter="saveBoardName"
+        @keyup.esc="cancelEditingBoardName"
+        maxlength="50"
+      />
       <div class="header-actions">
         <div class="board-menu-container">
           <button class="btn-board-menu" @click="toggleMenu">⋮</button>
@@ -94,17 +107,31 @@ function addNewColumn() {
             <button class="menu-item delete-item" @click="deleteBoard">Delete Board</button>
           </div>
         </div>
-        <button class="btn-theme-toggle" @click="toggleTheme" :title="`Switch to ${isDark ? 'light' : 'dark'} theme`">
+        <button
+          class="btn-theme-toggle"
+          @click="toggleTheme"
+          :title="`Switch to ${isDark ? 'light' : 'dark'} theme`"
+        >
           {{ isDark ? '☀️' : '🌙' }}
         </button>
       </div>
     </div>
     <div class="board">
-      <KanbanColumn v-for="(column, index) in store.columns" :key="column.id" :column="column" :is-first="index === 0"
-        :is-last="index === store.columns.length - 1" />
+      <KanbanColumn
+        v-for="(column, index) in store.columns"
+        :key="column.id"
+        :column="column"
+        :is-first="index === 0"
+        :is-last="index === store.columns.length - 1"
+      />
       <div class="add-column-card">
-        <input v-model="newColumnTitle" class="add-column-input" placeholder="Column name..."
-          @keyup.enter="addNewColumn" maxlength="30" />
+        <input
+          v-model="newColumnTitle"
+          class="add-column-input"
+          placeholder="Column name..."
+          @keyup.enter="addNewColumn"
+          maxlength="30"
+        />
         <button class="btn-add-column" @click="addNewColumn">+ Add Column</button>
       </div>
     </div>
@@ -184,7 +211,9 @@ function addNewColumn() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
   color: var(--color-text-primary);
 }
 
@@ -247,7 +276,9 @@ function addNewColumn() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .btn-theme-toggle:hover {
@@ -300,7 +331,10 @@ function addNewColumn() {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   outline: none;
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .add-column-input:focus {

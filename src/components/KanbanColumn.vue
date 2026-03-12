@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanCard from './KanbanCard.vue'
+import draggable from 'vuedraggable'
 import type { Column } from '@/types'
 
 const props = defineProps<{
@@ -11,6 +12,13 @@ const props = defineProps<{
 }>()
 
 const store = useBoardStore()
+
+const cards = computed({
+  get: () => props.column.cards,
+  set: (val) => {
+    store.updateColumnCards(props.column.id, val)
+  },
+})
 
 const newCardTitle = ref('')
 const showForm = ref(false)
@@ -36,7 +44,10 @@ function clearColumn() {
 
 function setLimit() {
   const currentLimit = props.column.maxCards || ''
-  const input = prompt(`Set max number of tiles for "${props.column.title}" (leave empty for no limit):`, currentLimit.toString())
+  const input = prompt(
+    `Set max number of tiles for "${props.column.title}" (leave empty for no limit):`,
+    currentLimit.toString(),
+  )
   if (input !== null) {
     const limit = input === '' ? undefined : parseInt(input, 10)
     if (limit === undefined || !isNaN(limit)) {
@@ -49,7 +60,12 @@ function setLimit() {
 const handleClickOutside = (event: MouseEvent) => {
   const menu = document.querySelector(`.column-${props.column.id} .menu-dropdown`)
   const button = document.querySelector(`.column-${props.column.id} .btn-column-menu`)
-  if (menu && !menu.contains(event.target as Node) && button && !button.contains(event.target as Node)) {
+  if (
+    menu &&
+    !menu.contains(event.target as Node) &&
+    button &&
+    !button.contains(event.target as Node)
+  ) {
     closeMenu()
   }
 }
@@ -106,24 +122,49 @@ function deleteColumn() {
 </script>
 
 <template>
-  <div class="column" :class="[`column-${props.column.id}`, { 'limit-exceeded': props.column.maxCards && props.column.cards.length > props.column.maxCards }]">
+  <div
+    class="column"
+    :class="[
+      `column-${props.column.id}`,
+      {
+        'limit-exceeded':
+          props.column.maxCards && props.column.cards.length > props.column.maxCards,
+      },
+    ]"
+  >
     <div class="column-header">
       <div v-if="isRenamingColumn" class="column-rename">
-        <input ref="renameInput" v-model="newColumnTitle" class="rename-input" @blur="submitRenameColumn"
-          @keyup.enter="submitRenameColumn" @keyup.esc="cancelRenameColumn" maxlength="30" />
+        <input
+          ref="renameInput"
+          v-model="newColumnTitle"
+          class="rename-input"
+          @blur="submitRenameColumn"
+          @keyup.enter="submitRenameColumn"
+          @keyup.esc="cancelRenameColumn"
+          maxlength="30"
+        />
       </div>
       <div v-else class="column-title-group">
         <h2 class="column-title" @click="startRenameColumn">{{ props.column.title }}</h2>
         <span class="column-count">
-          {{ props.column.cards.length }}{{ props.column.maxCards ? ` / ${props.column.maxCards}` : '' }}
+          {{ props.column.cards.length
+          }}{{ props.column.maxCards ? ` / ${props.column.maxCards}` : '' }}
         </span>
         <div class="column-actions">
-          <button class="btn-icon" :disabled="props.isFirst" title="Move left"
-            @click="store.moveColumn(props.column.id, 'left')">
+          <button
+            class="btn-icon"
+            :disabled="props.isFirst"
+            title="Move left"
+            @click="store.moveColumn(props.column.id, 'left')"
+          >
             ←
           </button>
-          <button class="btn-icon" :disabled="props.isLast" title="Move right"
-            @click="store.moveColumn(props.column.id, 'right')">
+          <button
+            class="btn-icon"
+            :disabled="props.isLast"
+            title="Move right"
+            @click="store.moveColumn(props.column.id, 'right')"
+          >
             →
           </button>
         </div>
@@ -138,15 +179,37 @@ function deleteColumn() {
       </div>
     </div>
 
-    <div class="card-list">
-      <KanbanCard v-for="card in props.column.cards" :key="card.id" :card="card" :column-id="props.column.id"
-        :can-move-left="!props.isFirst" :can-move-right="!props.isLast" />
-      <p v-if="props.column.cards.length === 0" class="empty-state">No cards yet</p>
-    </div>
+    <draggable
+      v-model="cards"
+      group="tasks"
+      item-key="id"
+      class="card-list"
+      ghost-class="ghost-card"
+    >
+      <template #item="{ element }">
+        <KanbanCard
+          :key="element.id"
+          :card="element"
+          :column-id="props.column.id"
+          :can-move-left="!props.isFirst"
+          :can-move-right="!props.isLast"
+        />
+      </template>
+      <template #footer>
+        <p v-if="props.column.cards.length === 0" class="empty-state">No cards yet</p>
+      </template>
+    </draggable>
 
     <div v-if="showForm" class="add-form">
-      <input v-model="newCardTitle" class="add-input" placeholder="Card title..." autofocus @keyup.enter="submitCard"
-        @keyup.esc="cancelAdd" maxlength="200" />
+      <input
+        v-model="newCardTitle"
+        class="add-input"
+        placeholder="Card title..."
+        autofocus
+        @keyup.enter="submitCard"
+        @keyup.esc="cancelAdd"
+        maxlength="200"
+      />
       <div class="add-form-actions">
         <button class="btn-primary" @click="submitCard">Add</button>
         <button class="btn-secondary" @click="cancelAdd">Cancel</button>
@@ -167,7 +230,9 @@ function deleteColumn() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
   position: relative;
 }
 
@@ -267,7 +332,9 @@ function deleteColumn() {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
   line-height: 1;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-icon:hover:not(:disabled) {
@@ -305,7 +372,9 @@ function deleteColumn() {
   color: var(--color-count-text);
   border-radius: 999px;
   padding: 0.1rem 0.5rem;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   white-space: nowrap;
 }
 
@@ -317,7 +386,9 @@ function deleteColumn() {
   color: var(--color-text-secondary);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-column-menu:hover {
@@ -357,7 +428,10 @@ function deleteColumn() {
   outline: none;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .add-input:focus {
@@ -392,7 +466,10 @@ function deleteColumn() {
   padding: 0.35rem 0.75rem;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .btn-secondary:hover {
@@ -409,11 +486,19 @@ function deleteColumn() {
   cursor: pointer;
   font-size: 0.85rem;
   text-align: center;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .btn-add-card:hover {
   background: var(--color-button-hover);
   color: var(--color-text-primary);
+}
+
+.ghost-card {
+  opacity: 0.5;
+  background: var(--color-bg-secondary);
 }
 </style>

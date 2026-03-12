@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import type { Column } from '@/types'
+import type { Column, Card } from '@/types'
 
 const STORAGE_KEY = 'kanban-board'
 
@@ -103,7 +103,11 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function deleteBoard() {
-    if (confirm('Are you sure you want to delete all columns and cards? This will reset the board to default.')) {
+    if (
+      confirm(
+        'Are you sure you want to delete all columns and cards? This will reset the board to default.',
+      )
+    ) {
       columns.value = JSON.parse(JSON.stringify(DEFAULT_COLUMNS))
       boardName.value = 'Kaban Board'
     }
@@ -116,5 +120,28 @@ export const useBoardStore = defineStore('board', () => {
     }
   }
 
-  return { columns, boardName, setBoardName, addCard, deleteCard, moveCard, moveColumn, addColumn, renameColumn, deleteColumn, clearBoard, clearColumn, deleteBoard, setColumnLimit }
+  function updateColumnCards(columnId: string, newCards: Card[]) {
+    const column = columns.value.find((c) => c.id === columnId)
+    if (column) {
+      column.cards = newCards
+    }
+  }
+
+  return {
+    columns,
+    boardName,
+    setBoardName,
+    addCard,
+    deleteCard,
+    moveCard,
+    moveColumn,
+    addColumn,
+    renameColumn,
+    deleteColumn,
+    clearBoard,
+    clearColumn,
+    deleteBoard,
+    setColumnLimit,
+    updateColumnCards,
+  }
 })
