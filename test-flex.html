@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html style="background: #333; color: white;">
+<head>
+<style>
+.board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: scroll;
+  width: 500px;
+  border: 1px solid red;
+}
+.board::before, .board::after {
+  content: '';
+  margin: auto;
+}
+.item { width: 100px; height: 100px; background: blue; flex-shrink: 0; }
+</style>
+</head>
+<body>
+  <div class="board">
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+  </div>
+  <br>
+  <div class="board">
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+    <div class="item"></div>
+  </div>
+</body>
+</html>

@@ -316,7 +316,13 @@ function addNewColumn() {
   padding-right: 2rem;
   padding-left: 2rem;
   padding-bottom: 2rem;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.board::before,
+.board::after {
+  content: '';
+  margin: auto;
 }
 
 .add-column-card {

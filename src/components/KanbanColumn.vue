@@ -2,6 +2,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanCard from './KanbanCard.vue'
+import ModalDialog from './ModalDialog.vue'
 import draggable from 'vuedraggable'
 import type { Column } from '@/types'
 
@@ -25,7 +26,69 @@ const showForm = ref(false)
 const isRenamingColumn = ref(false)
 const newColumnTitle = ref(props.column.title)
 const renameInput = ref<HTMLInputElement | null>(null)
+const addInputRef = ref<HTMLInputElement | null>(null)
 const showMenu = ref(false)
+
+const modalConfig = ref<{
+  show: boolean
+  type: 'confirm' | 'prompt'
+  inputType?: 'text' | 'number'
+  title: string
+  message: string
+  initialValue: string
+  confirmText: string
+  danger: boolean
+  presets?: { label: string; value: string }[]
+  onConfirm: (val?: string) => void
+}>({
+  show: false,
+  type: 'confirm',
+  inputType: 'text',
+  title: '',
+  message: '',
+  initialValue: '',
+  confirmText: 'OK',
+  danger: false,
+  presets: [],
+  onConfirm: () => {}
+})
+
+function openConfirmModal(title: string, message: string, onConfirm: () => void, danger = false) {
+  modalConfig.value = {
+    show: true,
+    type: 'confirm',
+    inputType: 'text',
+    title,
+    message,
+    initialValue: '',
+    confirmText: danger ? 'Delete' : 'Yes',
+    danger,
+    presets: [],
+    onConfirm
+  }
+  closeMenu()
+}
+
+function openPromptModal(title: string, message: string, initialValue: string, onConfirm: (val?: string) => void, inputType: 'text' | 'number' = 'text', presets?: { label: string; value: string }[]) {
+  modalConfig.value = {
+    show: true,
+    type: 'prompt',
+    inputType,
+    title,
+    message,
+    initialValue,
+    confirmText: 'Save',
+    danger: false,
+    presets,
+    onConfirm
+  }
+  closeMenu()
+}
+
+function handleModalConfirm(value?: string) {
+  modalConfig.value.onConfirm(value)
+  modalConfig.value.show = false
+}
 
 function toggleMenu() {
   showMenu.value = !showMenu.value
@@ -36,25 +99,41 @@ function closeMenu() {
 }
 
 function clearColumn() {
-  if (confirm(`Clear all cards from "${props.column.title}"?`)) {
-    store.clearColumn(props.column.id)
-    closeMenu()
-  }
+  openConfirmModal(
+    'Clear Column',
+    `Clear all cards from "${props.column.title}"?`,
+    () => {
+      store.clearColumn(props.column.id)
+    },
+    true
+  )
 }
 
 function setLimit() {
   const currentLimit = props.column.maxCards || ''
-  const input = prompt(
+  openPromptModal(
+    'Set limit',
     `Set max number of tiles for "${props.column.title}" (leave empty for no limit):`,
     currentLimit.toString(),
+    (input) => {
+      if (input !== undefined) {
+        let limit = input === '' ? undefined : parseInt(input, 10)
+        if (limit !== undefined && !isNaN(limit)) {
+          limit = Math.max(0, limit)
+          store.setColumnLimit(props.column.id, limit)
+        } else if (limit === undefined) {
+          store.setColumnLimit(props.column.id, limit)
+        }
+      }
+    },
+    'number',
+    [
+      { label: '3', value: '3' },
+      { label: '5', value: '5' },
+      { label: '10', value: '10' },
+      { label: 'No Limit', value: '' }
+    ]
   )
-  if (input !== null) {
-    const limit = input === '' ? undefined : parseInt(input, 10)
-    if (limit === undefined || !isNaN(limit)) {
-      store.setColumnLimit(props.column.id, limit)
-    }
-  }
-  closeMenu()
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -78,12 +157,22 @@ onUnmounted(() => {
   document.removeEventListener('mousedown', handleClickOutside)
 })
 
+function openAddCard() {
+  showForm.value = true
+  nextTick(() => {
+    addInputRef.value?.focus()
+    addInputRef.value?.select()
+  })
+}
+
 function submitCard() {
   const title = newCardTitle.value.trim()
   if (!title) return
   store.addCard(props.column.id, title)
   newCardTitle.value = ''
-  showForm.value = false
+  nextTick(() => {
+    addInputRef.value?.focus()
+  })
 }
 
 function cancelAdd() {
@@ -115,9 +204,14 @@ function cancelRenameColumn() {
 }
 
 function deleteColumn() {
-  if (confirm(`Delete column "${props.column.title}"? This cannot be undone.`)) {
-    store.deleteColumn(props.column.id)
-  }
+  openConfirmModal(
+    'Delete Column',
+    `Delete column "${props.column.title}"? This cannot be undone.`,
+    () => {
+      store.deleteColumn(props.column.id)
+    },
+    true
+  )
 }
 
 const dragOptions = {
@@ -210,6 +304,7 @@ const dragOptions = {
 
     <div v-if="showForm" class="add-form">
       <input
+        ref="addInputRef"
         v-model="newCardTitle"
         class="add-input"
         placeholder="Card title..."
@@ -223,7 +318,20 @@ const dragOptions = {
         <button class="btn-secondary" @click="cancelAdd">Cancel</button>
       </div>
     </div>
-    <button v-else class="btn-add-card" @click="showForm = true">+ Add card</button>
+    <button v-else class="btn-add-card" @click="openAddCard">+ Add card</button>
+
+    <ModalDialog
+      v-model:show="modalConfig.show"
+      :type="modalConfig.type"
+      :input-type="modalConfig.inputType"
+      :title="modalConfig.title"
+      :message="modalConfig.message"
+      :initial-value="modalConfig.initialValue"
+      :confirm-text="modalConfig.confirmText"
+      :danger="modalConfig.danger"
+      :presets="modalConfig.presets"
+      @confirm="handleModalConfirm"
+    />
   </div>
 </template>
 

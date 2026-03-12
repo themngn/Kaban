@@ -103,14 +103,8 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function deleteBoard() {
-    if (
-      confirm(
-        'Are you sure you want to delete all columns and cards? This will reset the board to default.',
-      )
-    ) {
-      columns.value = JSON.parse(JSON.stringify(DEFAULT_COLUMNS))
-      boardName.value = '🐗 Kaban Board'
-    }
+    columns.value = JSON.parse(JSON.stringify(DEFAULT_COLUMNS))
+    boardName.value = '🐗 Kaban Board'
   }
 
   function setColumnLimit(columnId: string, limit?: number) {

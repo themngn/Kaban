@@ -66,7 +66,7 @@ const store = useBoardStore()
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.15rem 0.3rem;
+  padding: 0.25rem;
   border-radius: 4px;
   font-size: 0.8rem;
   color: var(--color-text-secondary);
@@ -74,6 +74,19 @@ const store = useBoardStore()
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.btn-icon::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  bottom: -10px;
+  left: -10px;
 }
 
 .btn-icon:hover:not(:disabled) {
