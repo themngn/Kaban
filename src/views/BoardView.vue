@@ -105,19 +105,22 @@ function addNewColumn() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   border: 2px dashed var(--color-border);
   border-radius: 10px;
   padding: 1rem;
   width: 280px;
   flex-shrink: 0;
   min-height: 200px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: all 0.3s ease;
+  opacity: 0.5;
 }
 
-.add-column-card:hover {
+.add-column-card:hover,
+.add-column-card:focus-within {
+  opacity: 1;
+  background: var(--color-bg-secondary);
   border-color: var(--color-accent);
-  background: var(--color-button-hover);
 }
 
 .add-column-input {
