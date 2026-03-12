@@ -14,6 +14,8 @@ const store = useBoardStore()
 
 const newCardTitle = ref('')
 const showForm = ref(false)
+const isRenamingColumn = ref(false)
+const newColumnTitle = ref(props.column.title)
 
 function submitCard() {
   const title = newCardTitle.value.trim()
@@ -27,13 +29,45 @@ function cancelAdd() {
   newCardTitle.value = ''
   showForm.value = false
 }
+
+function startRenameColumn() {
+  isRenamingColumn.value = true
+  newColumnTitle.value = props.column.title
+}
+
+function submitRenameColumn() {
+  const title = newColumnTitle.value.trim()
+  if (title) {
+    store.renameColumn(props.column.id, title)
+  }
+  isRenamingColumn.value = false
+}
+
+function cancelRenameColumn() {
+  isRenamingColumn.value = false
+}
+
+function deleteColumn() {
+  if (confirm(`Delete column "${props.column.title}"? This cannot be undone.`)) {
+    store.deleteColumn(props.column.id)
+  }
+}
 </script>
 
 <template>
   <div class="column">
     <div class="column-header">
-      <h2 class="column-title">{{ props.column.title }}</h2>
-      <span class="column-count">{{ props.column.cards.length }}</span>
+      <div v-if="isRenamingColumn" class="column-rename">
+        <input v-model="newColumnTitle" class="rename-input" autofocus @keyup.enter="submitRenameColumn"
+          @keyup.esc="cancelRenameColumn" />
+        <button class="btn-rename-confirm" @click="submitRenameColumn">✓</button>
+        <button class="btn-rename-cancel" @click="cancelRenameColumn">✕</button>
+      </div>
+      <div v-else class="column-title-group">
+        <h2 class="column-title" @dblclick="startRenameColumn">{{ props.column.title }}</h2>
+        <span class="column-count">{{ props.column.cards.length }}</span>
+        <button class="btn-column-menu" title="Delete column" @click="deleteColumn">⋮</button>
+      </div>
     </div>
 
     <div class="card-list">
@@ -75,12 +109,65 @@ function cancelAdd() {
   margin-bottom: 0.25rem;
 }
 
+.column-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.column-rename {
+  display: flex;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.rename-input {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.btn-rename-confirm,
+.btn-rename-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-rename-confirm:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+.btn-rename-cancel:hover {
+  background: var(--color-delete);
+  color: white;
+}
+
 .column-title {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
   color: var(--color-text-primary);
   transition: color 0.2s ease;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.column-title:hover {
+  background: var(--color-button-hover);
 }
 
 .column-count {
@@ -90,6 +177,23 @@ function cancelAdd() {
   border-radius: 999px;
   padding: 0.1rem 0.5rem;
   transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-column-menu {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-column-menu:hover {
+  background: var(--color-delete-bg);
+  color: var(--color-delete);
 }
 
 .card-list {

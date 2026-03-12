@@ -45,12 +45,33 @@ export const useBoardStore = defineStore('board', () => {
 
     const fromColumn = columns.value[fromIndex]
     const toColumn = columns.value[toIndex]
+    if (!fromColumn || !toColumn) return
     const cardIndex = fromColumn.cards.findIndex((c) => c.id === cardId)
     if (cardIndex === -1) return
 
-    const [card] = fromColumn.cards.splice(cardIndex, 1)
+    const [card] = fromColumn.cards.splice(cardIndex, 1) as [(typeof fromColumn.cards)[number]]
     toColumn.cards.push(card)
   }
 
-  return { columns, addCard, deleteCard, moveCard }
+  function addColumn(title: string) {
+    const newColumn: Column = {
+      id: crypto.randomUUID(),
+      title,
+      cards: [],
+    }
+    columns.value.push(newColumn)
+  }
+
+  function renameColumn(columnId: string, newTitle: string) {
+    const column = columns.value.find((c) => c.id === columnId)
+    if (column) {
+      column.title = newTitle.trim()
+    }
+  }
+
+  function deleteColumn(columnId: string) {
+    columns.value = columns.value.filter((c) => c.id !== columnId)
+  }
+
+  return { columns, addCard, deleteCard, moveCard, addColumn, renameColumn, deleteColumn }
 })
