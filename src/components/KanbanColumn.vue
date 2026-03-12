@@ -417,6 +417,10 @@ const dragOptions = {
   min-height: 2rem;
 }
 
+.card-list:has(.ghost-card) .empty-state {
+  display: none;
+}
+
 .empty-state {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
