@@ -204,7 +204,7 @@ const dragOptions = {
         <KanbanCard :key="element.id" :card="element" :column-id="props.column.id" />
       </template>
       <template #footer>
-        <p v-if="props.column.cards.length === 0" class="empty-state">No cards yet</p>
+        <p v-if="props.column.cards.length === 0 && !showForm" class="empty-state">No cards yet</p>
       </template>
     </draggable>
 
@@ -408,7 +408,6 @@ const dragOptions = {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  min-height: 2rem;
 }
 
 .card-list:has(.ghost-card) .empty-state {
