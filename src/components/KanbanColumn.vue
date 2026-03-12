@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanCard from './KanbanCard.vue'
 import type { Column } from '@/types'
@@ -16,6 +16,7 @@ const newCardTitle = ref('')
 const showForm = ref(false)
 const isRenamingColumn = ref(false)
 const newColumnTitle = ref(props.column.title)
+const renameInput = ref<HTMLInputElement | null>(null)
 
 function submitCard() {
   const title = newCardTitle.value.trim()
@@ -33,14 +34,20 @@ function cancelAdd() {
 function startRenameColumn() {
   isRenamingColumn.value = true
   newColumnTitle.value = props.column.title
+  nextTick(() => {
+    renameInput.value?.focus()
+    renameInput.value?.select()
+  })
 }
 
 function submitRenameColumn() {
-  const title = newColumnTitle.value.trim()
-  if (title) {
-    store.renameColumn(props.column.id, title)
+  if (isRenamingColumn.value) {
+    const title = newColumnTitle.value.trim()
+    if (title) {
+      store.renameColumn(props.column.id, title)
+    }
+    isRenamingColumn.value = false
   }
-  isRenamingColumn.value = false
 }
 
 function cancelRenameColumn() {
@@ -58,13 +65,11 @@ function deleteColumn() {
   <div class="column">
     <div class="column-header">
       <div v-if="isRenamingColumn" class="column-rename">
-        <input v-model="newColumnTitle" class="rename-input" autofocus @keyup.enter="submitRenameColumn"
-          @keyup.esc="cancelRenameColumn" />
-        <button class="btn-rename-confirm" @click="submitRenameColumn">✓</button>
-        <button class="btn-rename-cancel" @click="cancelRenameColumn">✕</button>
+        <input ref="renameInput" v-model="newColumnTitle" class="rename-input" @blur="submitRenameColumn"
+          @keyup.enter="submitRenameColumn" @keyup.esc="cancelRenameColumn" />
       </div>
       <div v-else class="column-title-group">
-        <h2 class="column-title" @dblclick="startRenameColumn">{{ props.column.title }}</h2>
+        <h2 class="column-title" @click="startRenameColumn">{{ props.column.title }}</h2>
         <span class="column-count">{{ props.column.cards.length }}</span>
         <button class="btn-column-menu" title="Delete column" @click="deleteColumn">⋮</button>
       </div>
@@ -131,28 +136,6 @@ function deleteColumn() {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   outline: none;
-}
-
-.btn-rename-confirm,
-.btn-rename-cancel {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  padding: 0.2rem 0.4rem;
-  border-radius: 3px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-rename-confirm:hover {
-  background: var(--color-accent);
-  color: white;
-}
-
-.btn-rename-cancel:hover {
-  background: var(--color-delete);
-  color: white;
 }
 
 .column-title {

@@ -22,8 +22,14 @@ function loadFromStorage(): Column[] {
 
 export const useBoardStore = defineStore('board', () => {
   const columns = ref<Column[]>(loadFromStorage())
+  const boardName = ref(localStorage.getItem('kanban-board-name') || 'Kaban Board')
 
   watch(columns, (val) => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
+  watch(boardName, (val) => localStorage.setItem('kanban-board-name', val))
+
+  function setBoardName(name: string) {
+    boardName.value = name.trim() || 'Kaban Board'
+  }
 
   function addCard(columnId: string, title: string) {
     const column = columns.value.find((c) => c.id === columnId)
@@ -73,5 +79,5 @@ export const useBoardStore = defineStore('board', () => {
     columns.value = columns.value.filter((c) => c.id !== columnId)
   }
 
-  return { columns, addCard, deleteCard, moveCard, addColumn, renameColumn, deleteColumn }
+  return { columns, boardName, setBoardName, addCard, deleteCard, moveCard, addColumn, renameColumn, deleteColumn }
 })

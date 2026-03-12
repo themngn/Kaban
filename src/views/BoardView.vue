@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanColumn from '@/components/KanbanColumn.vue'
 import { useTheme } from '@/composables/useTheme'
@@ -8,6 +8,29 @@ const store = useBoardStore()
 const { isDark, toggleTheme } = useTheme()
 
 const newColumnTitle = ref('New Column')
+const isEditingBoardName = ref(false)
+const editingBoardName = ref('')
+const boardNameInput = ref<HTMLInputElement | null>(null)
+
+function startEditingBoardName() {
+  editingBoardName.value = store.boardName
+  isEditingBoardName.value = true
+  nextTick(() => {
+    boardNameInput.value?.focus()
+    boardNameInput.value?.select()
+  })
+}
+
+function saveBoardName() {
+  if (isEditingBoardName.value) {
+    store.setBoardName(editingBoardName.value)
+    isEditingBoardName.value = false
+  }
+}
+
+function cancelEditingBoardName() {
+  isEditingBoardName.value = false
+}
 
 function addNewColumn() {
   const title = newColumnTitle.value.trim()
@@ -21,7 +44,11 @@ function addNewColumn() {
 <template>
   <main class="board-view">
     <div class="board-header">
-      <h1 class="board-title">Kaban Board</h1>
+      <h1 v-if="!isEditingBoardName" class="board-title" @click="startEditingBoardName">
+        {{ store.boardName }}
+      </h1>
+      <input v-else ref="boardNameInput" v-model="editingBoardName" class="board-title-input" @blur="saveBoardName"
+        @keyup.enter="saveBoardName" @keyup.esc="cancelEditingBoardName" />
       <button class="btn-theme-toggle" @click="toggleTheme" :title="`Switch to ${isDark ? 'light' : 'dark'} theme`">
         {{ isDark ? '☀️' : '🌙' }}
       </button>
@@ -64,6 +91,27 @@ function addNewColumn() {
   font-size: 1.5rem;
   color: var(--color-text-primary);
   transition: color 0.2s ease;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.board-title:hover {
+  background: var(--color-bg-secondary);
+}
+
+.board-title-input {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  outline: none;
+  width: auto;
+  min-width: 200px;
 }
 
 .btn-theme-toggle {
