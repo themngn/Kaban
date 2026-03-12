@@ -56,8 +56,8 @@ function cancelAdd() {
 
 <style scoped>
 .column {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 1rem;
   width: 280px;
@@ -65,6 +65,7 @@ function cancelAdd() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .column-header {
@@ -78,14 +79,17 @@ function cancelAdd() {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
+  color: var(--color-text-primary);
+  transition: color 0.2s ease;
 }
 
 .column-count {
   font-size: 0.75rem;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--color-count-bg);
+  color: var(--color-count-text);
   border-radius: 999px;
   padding: 0.1rem 0.5rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .card-list {
@@ -97,10 +101,11 @@ function cancelAdd() {
 
 .empty-state {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--color-text-secondary);
   text-align: center;
   padding: 0.5rem 0;
   margin: 0;
+  transition: color 0.2s ease;
 }
 
 .add-form {
@@ -112,15 +117,18 @@ function cancelAdd() {
 .add-input {
   width: 100%;
   padding: 0.4rem 0.5rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border-light);
   border-radius: 6px;
   font-size: 0.9rem;
   box-sizing: border-box;
   outline: none;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .add-input:focus {
-  border-color: #6366f1;
+  border-color: var(--color-accent);
 }
 
 .add-form-actions {
@@ -129,47 +137,50 @@ function cancelAdd() {
 }
 
 .btn-primary {
-  background: #6366f1;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: 6px;
   padding: 0.35rem 0.75rem;
   cursor: pointer;
   font-size: 0.85rem;
+  transition: background-color 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #4f46e5;
+  background: var(--color-accent-hover);
 }
 
 .btn-secondary {
   background: none;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 0.35rem 0.75rem;
   cursor: pointer;
   font-size: 0.85rem;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #f1f5f9;
+  background: var(--color-button-hover);
 }
 
 .btn-add-card {
   background: none;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--color-border-light);
   border-radius: 6px;
-  color: #64748b;
+  color: var(--color-text-secondary);
   padding: 0.35rem;
   width: 100%;
   cursor: pointer;
   font-size: 0.85rem;
   text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn-add-card:hover {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--color-button-hover);
+  color: var(--color-text-primary);
 }
 </style>

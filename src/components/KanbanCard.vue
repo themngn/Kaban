@@ -36,17 +36,20 @@ const store = useBoardStore()
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   gap: 0.5rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .card-title {
   flex: 1;
   font-size: 0.9rem;
   word-break: break-word;
+  color: var(--color-text-primary);
+  transition: color 0.2s ease;
 }
 
 .card-actions {
@@ -62,13 +65,14 @@ const store = useBoardStore()
   padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
   line-height: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-icon:hover:not(:disabled) {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--color-button-hover);
+  color: var(--color-text-primary);
 }
 
 .btn-icon:disabled {
@@ -77,7 +81,7 @@ const store = useBoardStore()
 }
 
 .btn-delete:hover:not(:disabled) {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--color-delete-bg);
+  color: var(--color-delete);
 }
 </style>
