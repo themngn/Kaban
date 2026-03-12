@@ -350,6 +350,7 @@ const dragOptions = {
     background-color 0.2s ease,
     border-color 0.2s ease;
   position: relative;
+  max-height: 100%;
 }
 
 .limit-exceeded {
@@ -362,6 +363,7 @@ const dragOptions = {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.25rem;
+  flex-shrink: 0;
 }
 
 .column-title-group {
@@ -516,6 +518,28 @@ const dragOptions = {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  flex: 1;
+}
+
+/* Custom scrollbar for card list */
+.card-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.card-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+
+.card-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
 
 .card-list:has(.ghost-card) .empty-state {
@@ -535,6 +559,7 @@ const dragOptions = {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  flex-shrink: 0;
 }
 
 .add-input {
@@ -609,6 +634,7 @@ const dragOptions = {
     background-color 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .btn-add-card:hover {
