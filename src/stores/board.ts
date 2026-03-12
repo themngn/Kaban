@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Column } from '@/types'
+
+const STORAGE_KEY = 'kanban-board'
 
 const DEFAULT_COLUMNS: Column[] = [
   { id: 'todo', title: 'To Do', cards: [] },
@@ -8,8 +10,20 @@ const DEFAULT_COLUMNS: Column[] = [
   { id: 'done', title: 'Done', cards: [] },
 ]
 
+function loadFromStorage(): Column[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) return JSON.parse(raw) as Column[]
+  } catch {
+    // ignore
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_COLUMNS))
+}
+
 export const useBoardStore = defineStore('board', () => {
-  const columns = ref<Column[]>(JSON.parse(JSON.stringify(DEFAULT_COLUMNS)))
+  const columns = ref<Column[]>(loadFromStorage())
+
+  watch(columns, (val) => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
 
   function addCard(columnId: string, title: string) {
     const column = columns.value.find((c) => c.id === columnId)
