@@ -201,13 +201,7 @@ const dragOptions = {
       v-bind="dragOptions"
     >
       <template #item="{ element }">
-        <KanbanCard
-          :key="element.id"
-          :card="element"
-          :column-id="props.column.id"
-          :can-move-left="!props.isFirst"
-          :can-move-right="!props.isLast"
-        />
+        <KanbanCard :key="element.id" :card="element" :column-id="props.column.id" />
       </template>
       <template #footer>
         <p v-if="props.column.cards.length === 0" class="empty-state">No cards yet</p>

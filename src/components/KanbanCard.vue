@@ -5,8 +5,6 @@ import type { Card } from '@/types'
 const props = defineProps<{
   card: Card
   columnId: string
-  canMoveLeft: boolean
-  canMoveRight: boolean
 }>()
 
 const store = useBoardStore()
@@ -16,22 +14,6 @@ const store = useBoardStore()
   <div class="card">
     <span class="card-title">{{ props.card.title }}</span>
     <div class="card-actions">
-      <button
-        class="btn-icon"
-        :disabled="!props.canMoveLeft"
-        title="Move left"
-        @click="store.moveCard(props.columnId, props.card.id, 'left')"
-      >
-        ←
-      </button>
-      <button
-        class="btn-icon"
-        :disabled="!props.canMoveRight"
-        title="Move right"
-        @click="store.moveCard(props.columnId, props.card.id, 'right')"
-      >
-        →
-      </button>
       <button
         class="btn-icon btn-delete"
         title="Delete card"
