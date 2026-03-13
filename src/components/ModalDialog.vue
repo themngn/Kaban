@@ -87,46 +87,37 @@ onUnmounted(() => {
     <div class="modal-content">
       <h3 class="modal-title">{{ title }}</h3>
       <p v-if="message" class="modal-message">{{ message }}</p>
-      
+
       <template v-if="type === 'prompt'">
         <div class="input-wrapper" :class="{ 'has-stepper': inputType === 'number' }">
-          <input
-            ref="inputRef"
-            :type="inputType || 'text'"
-            :min="inputType === 'number' ? '0' : undefined"
-            v-model="inputValue"
-            class="modal-input"
-            :placeholder="placeholder"
-            @keyup.enter="handleConfirm"
-            @keyup.esc="handleCancel"
-          />
+          <input ref="inputRef" :type="inputType || 'text'" :min="inputType === 'number' ? '0' : undefined"
+            v-model="inputValue" class="modal-input" :placeholder="placeholder" @keyup.enter="handleConfirm"
+            @keyup.esc="handleCancel" />
           <div v-if="inputType === 'number'" class="stepper-controls">
             <button type="button" class="stepper-btn up" @click="increment" aria-label="Increase">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
             </button>
             <button type="button" class="stepper-btn down" @click="decrement" aria-label="Decrease">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
           </div>
         </div>
         <div v-if="presets && presets.length" class="modal-presets">
-          <button
-            v-for="(preset, i) in presets"
-            :key="i"
-            class="preset-chip"
-            @click="applyPreset(preset.value)"
-          >
+          <button v-for="(preset, i) in presets" :key="i" class="preset-chip" @click="applyPreset(preset.value)">
             {{ preset.label }}
           </button>
         </div>
       </template>
-      
+
       <div class="modal-actions">
         <button class="btn-secondary" @click="handleCancel">{{ cancelText || 'Cancel' }}</button>
-        <button 
-          :class="['btn-primary', { 'btn-danger': danger }]" 
-          @click="handleConfirm"
-        >
+        <button :class="['btn-primary', { 'btn-danger': danger }]" @click="handleConfirm">
           {{ confirmText || 'OK' }}
         </button>
       </div>
@@ -155,7 +146,7 @@ onUnmounted(() => {
   border-radius: 12px;
   min-width: 320px;
   max-width: 90vw;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -200,9 +191,11 @@ onUnmounted(() => {
   -webkit-appearance: none;
   margin: 0;
 }
+
 .has-stepper .modal-input[type=number] {
   -moz-appearance: textfield;
-  padding-right: 2.5rem; /* Make room for custom arrows */
+  padding-right: 2.5rem;
+  /* Make room for custom arrows */
 }
 
 .stepper-controls {

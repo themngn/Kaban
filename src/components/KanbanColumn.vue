@@ -63,7 +63,7 @@ const modalConfig = ref<{
   confirmText: 'OK',
   danger: false,
   presets: [],
-  onConfirm: () => {}
+  onConfirm: () => { }
 })
 
 // Open a confirmation modal. `onConfirm` runs if the user confirms.
@@ -253,27 +253,17 @@ const dragOptions = {
 </script>
 
 <template>
-  <div
-    class="column"
-    :class="[
-      `column-${props.column.id}`,
-      {
-        'limit-exceeded':
-          props.column.maxCards && props.column.cards.length > props.column.maxCards,
-      },
-    ]"
-  >
+  <div class="column" :class="[
+    `column-${props.column.id}`,
+    {
+      'limit-exceeded':
+        props.column.maxCards && props.column.cards.length > props.column.maxCards,
+    },
+  ]">
     <div class="column-header">
       <div v-if="isRenamingColumn" class="column-rename">
-        <input
-          ref="renameInput"
-          v-model="newColumnTitle"
-          class="rename-input"
-          @blur="submitRenameColumn"
-          @keyup.enter="submitRenameColumn"
-          @keyup.esc="cancelRenameColumn"
-          maxlength="30"
-        />
+        <input ref="renameInput" v-model="newColumnTitle" class="rename-input" @blur="submitRenameColumn"
+          @keyup.enter="submitRenameColumn" @keyup.esc="cancelRenameColumn" maxlength="30" />
       </div>
       <div v-else class="column-title-group">
         <h2 class="column-title" @click="startRenameColumn">{{ props.column.title }}</h2>
@@ -282,20 +272,12 @@ const dragOptions = {
           }}{{ props.column.maxCards ? ` / ${props.column.maxCards}` : '' }}
         </span>
         <div class="column-actions">
-          <button
-            class="btn-icon"
-            :disabled="props.isFirst"
-            title="Move left"
-            @click="store.moveColumn(props.column.id, 'left')"
-          >
+          <button class="btn-icon" :disabled="props.isFirst" title="Move left"
+            @click="store.moveColumn(props.column.id, 'left')">
             ←
           </button>
-          <button
-            class="btn-icon"
-            :disabled="props.isLast"
-            title="Move right"
-            @click="store.moveColumn(props.column.id, 'right')"
-          >
+          <button class="btn-icon" :disabled="props.isLast" title="Move right"
+            @click="store.moveColumn(props.column.id, 'right')">
             →
           </button>
         </div>
@@ -310,16 +292,8 @@ const dragOptions = {
       </div>
     </div>
 
-    <draggable
-      v-model="cards"
-      group="tasks"
-      item-key="id"
-      class="card-list"
-      ghost-class="ghost-card"
-      drag-class="drag-card"
-      :animation="200"
-      v-bind="dragOptions"
-    >
+    <draggable v-model="cards" group="tasks" item-key="id" class="card-list" ghost-class="ghost-card"
+      drag-class="drag-card" :animation="200" v-bind="dragOptions">
       <template #item="{ element }">
         <KanbanCard :key="element.id" :card="element" :column-id="props.column.id" />
       </template>
@@ -329,16 +303,8 @@ const dragOptions = {
     </draggable>
 
     <div v-if="showForm" class="add-form">
-      <input
-        ref="addInputRef"
-        v-model="newCardTitle"
-        class="add-input"
-        placeholder="Card title..."
-        autofocus
-        @keyup.enter="submitCard"
-        @keyup.esc="cancelAdd"
-        maxlength="200"
-      />
+      <input ref="addInputRef" v-model="newCardTitle" class="add-input" placeholder="Card title..." autofocus
+        @keyup.enter="submitCard" @keyup.esc="cancelAdd" maxlength="200" />
       <div class="add-form-actions">
         <button class="btn-primary" @click="submitCard">Add</button>
         <button class="btn-secondary" @click="cancelAdd">Cancel</button>
@@ -346,27 +312,13 @@ const dragOptions = {
     </div>
     <button v-else class="btn-add-card" @click="openAddCard">+ Add card</button>
 
-    <ModalDialog
-      v-model:show="showLimitModal"
-      :title="limitModalTitle"
-      :message="limitModalMessage"
-      confirm-text="Upgrade Now"
-      cancel-text="Maybe Later"
-      @confirm="goToUpgrade"
-    />
+    <ModalDialog v-model:show="showLimitModal" :title="limitModalTitle" :message="limitModalMessage"
+      confirm-text="Upgrade Now" cancel-text="Maybe Later" @confirm="goToUpgrade" />
 
-    <ModalDialog
-      v-model:show="modalConfig.show"
-      :type="modalConfig.type"
-      :input-type="modalConfig.inputType"
-      :title="modalConfig.title"
-      :message="modalConfig.message"
-      :initial-value="modalConfig.initialValue"
-      :confirm-text="modalConfig.confirmText"
-      :danger="modalConfig.danger"
-      :presets="modalConfig.presets"
-      @confirm="handleModalConfirm"
-    />
+    <ModalDialog v-model:show="modalConfig.show" :type="modalConfig.type" :input-type="modalConfig.inputType"
+      :title="modalConfig.title" :message="modalConfig.message" :initial-value="modalConfig.initialValue"
+      :confirm-text="modalConfig.confirmText" :danger="modalConfig.danger" :presets="modalConfig.presets"
+      @confirm="handleModalConfirm" />
   </div>
 </template>
 
