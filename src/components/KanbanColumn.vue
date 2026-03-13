@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// KanbanColumn: handles rendering a column of cards and column-level actions
+// - Supports adding, renaming, clearing, and deleting columns
+// - Uses `ModalDialog` for confirm/prompt flows and `vuedraggable` for drag/drop
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import { useRouter } from 'vue-router'
@@ -63,6 +66,7 @@ const modalConfig = ref<{
   onConfirm: () => {}
 })
 
+// Open a confirmation modal. `onConfirm` runs if the user confirms.
 function openConfirmModal(title: string, message: string, onConfirm: () => void, danger = false) {
   modalConfig.value = {
     show: true,
@@ -79,6 +83,7 @@ function openConfirmModal(title: string, message: string, onConfirm: () => void,
   closeMenu()
 }
 
+// Open a prompt modal. `onConfirm` receives the entered value (string).
 function openPromptModal(title: string, message: string, initialValue: string, onConfirm: (val?: string) => void, inputType: 'text' | 'number' = 'text', presets?: { label: string; value: string }[]) {
   modalConfig.value = {
     show: true,
@@ -95,6 +100,7 @@ function openPromptModal(title: string, message: string, initialValue: string, o
   closeMenu()
 }
 
+// Called when modal confirms. Delegates to configured callback and hides modal.
 function handleModalConfirm(value?: string) {
   modalConfig.value.onConfirm(value)
   modalConfig.value.show = false
@@ -175,6 +181,7 @@ function openAddCard() {
   })
 }
 
+// Add a new card to this column. Handles plan limits and shows upgrade modal when needed.
 function submitCard() {
   const title = newCardTitle.value.trim()
   if (!title) return
@@ -197,6 +204,7 @@ function cancelAdd() {
   showForm.value = false
 }
 
+// Start inline renaming of the column title and focus the input.
 function startRenameColumn() {
   isRenamingColumn.value = true
   newColumnTitle.value = props.column.title
@@ -220,6 +228,7 @@ function cancelRenameColumn() {
   isRenamingColumn.value = false
 }
 
+// Delete the current column after confirming with the user.
 function deleteColumn() {
   openConfirmModal(
     'Delete Column',

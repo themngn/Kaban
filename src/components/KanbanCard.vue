@@ -14,11 +14,7 @@ const store = useBoardStore()
   <div class="card">
     <span class="card-title">{{ props.card.title }}</span>
     <div class="card-actions">
-      <button
-        class="btn-icon btn-delete"
-        title="Delete card"
-        @click="store.deleteCard(props.columnId, props.card.id)"
-      >
+      <button class="btn-icon btn-delete" title="Delete card" @click="store.deleteCard(props.columnId, props.card.id)">
         ✕
       </button>
     </div>

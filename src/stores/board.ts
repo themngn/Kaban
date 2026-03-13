@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import type { Column, Card } from '@/types'
 
+// Board store: central state for columns, cards and plan limits
+// Persists to `localStorage` under `STORAGE_KEY`
 const STORAGE_KEY = 'kanban-board'
 
 const DEFAULT_COLUMNS: Column[] = [
@@ -45,9 +47,10 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function addCard(columnId: string, title: string) {
+    // Respect plan-level total card limits
     const planLimits = limits[currentPlan.value as keyof typeof limits] || limits.Cheap
     const totalCards = columns.value.reduce((acc, col) => acc + col.cards.length, 0)
-    
+
     if (totalCards >= planLimits.cards) {
       return false
     }
@@ -93,6 +96,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function addColumn(title: string) {
+    // Add a new column if plan allows it
     const planLimits = limits[currentPlan.value as keyof typeof limits] || limits.Cheap
     if (columns.value.length >= planLimits.columns) {
       return false
@@ -135,6 +139,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function setColumnLimit(columnId: string, limit?: number) {
+    // Set per-column card limit (or unset if undefined)
     const column = columns.value.find((c) => c.id === columnId)
     if (column) {
       column.maxCards = limit
@@ -142,6 +147,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function updateColumnCards(columnId: string, newCards: Card[]) {
+    // Replace the cards array for a column (used by drag/drop)
     const column = columns.value.find((c) => c.id === columnId)
     if (column) {
       column.cards = newCards

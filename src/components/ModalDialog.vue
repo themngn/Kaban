@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// ModalDialog: reusable confirm/prompt modal used across the app
+// - Emits `confirm`, `cancel`, and `update:show` events
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{
@@ -15,12 +17,14 @@ const props = defineProps<{
   presets?: { label: string; value: string }[]
 }>()
 
+// Emitters for dialog actions
 const emit = defineEmits<{
   (e: 'confirm', value?: string): void
   (e: 'cancel'): void
   (e: 'update:show', value: boolean): void
 }>()
 
+// Local state for prompt input and its ref
 const inputValue = ref<string>('')
 const inputRef = ref<HTMLInputElement | null>(null)
 

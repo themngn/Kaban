@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// BoardView: top-level board screen that composes columns and global actions
+// - Manages board name, adding columns, plan-limit modals, and theme toggle
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanColumn from '@/components/KanbanColumn.vue'
