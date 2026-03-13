@@ -23,18 +23,39 @@ function loadFromStorage(): Column[] {
 export const useBoardStore = defineStore('board', () => {
   const columns = ref<Column[]>(loadFromStorage())
   const boardName = ref(localStorage.getItem('kanban-board-name') || '🐗 Kaban Board')
+  const currentPlan = ref(localStorage.getItem('kanban-plan') || 'Cheap')
 
   watch(columns, (val) => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)), { deep: true })
   watch(boardName, (val) => localStorage.setItem('kanban-board-name', val))
+  watch(currentPlan, (val) => localStorage.setItem('kanban-plan', val))
 
   function setBoardName(name: string) {
     boardName.value = name.trim() || '🐗 Kaban Board'
   }
 
+  function switchPlan(plan: string) {
+    currentPlan.value = plan
+  }
+
+  const limits = {
+    Cheap: { columns: 6, cards: 100 },
+    Pro: { columns: 20, cards: 500 },
+    Max: { columns: 100, cards: 1000000 },
+    'Pro Max': { columns: 1000, cards: 1000000 },
+  }
+
   function addCard(columnId: string, title: string) {
+    const planLimits = limits[currentPlan.value as keyof typeof limits] || limits.Cheap
+    const totalCards = columns.value.reduce((acc, col) => acc + col.cards.length, 0)
+    
+    if (totalCards >= planLimits.cards) {
+      return false
+    }
+
     const column = columns.value.find((c) => c.id === columnId)
-    if (!column) return
+    if (!column) return false
     column.cards.push({ id: crypto.randomUUID(), title })
+    return true
   }
 
   function deleteCard(columnId: string, cardId: string) {
@@ -72,12 +93,18 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function addColumn(title: string) {
+    const planLimits = limits[currentPlan.value as keyof typeof limits] || limits.Cheap
+    if (columns.value.length >= planLimits.columns) {
+      return false
+    }
+
     const newColumn: Column = {
       id: crypto.randomUUID(),
       title,
       cards: [],
     }
     columns.value.push(newColumn)
+    return true
   }
 
   function renameColumn(columnId: string, newTitle: string) {
@@ -124,7 +151,10 @@ export const useBoardStore = defineStore('board', () => {
   return {
     columns,
     boardName,
+    currentPlan,
+    limits,
     setBoardName,
+    switchPlan,
     addCard,
     deleteCard,
     moveCard,

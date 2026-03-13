@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
+import { useRouter } from 'vue-router'
 import KanbanCard from './KanbanCard.vue'
 import ModalDialog from './ModalDialog.vue'
 import draggable from 'vuedraggable'
@@ -13,6 +14,7 @@ const props = defineProps<{
 }>()
 
 const store = useBoardStore()
+const router = useRouter()
 
 const cards = computed({
   get: () => props.column.cards,
@@ -28,6 +30,14 @@ const newColumnTitle = ref(props.column.title)
 const renameInput = ref<HTMLInputElement | null>(null)
 const addInputRef = ref<HTMLInputElement | null>(null)
 const showMenu = ref(false)
+
+const showLimitModal = ref(false)
+const limitModalTitle = ref('')
+const limitModalMessage = ref('')
+
+function goToUpgrade() {
+  router.push('/payment')
+}
 
 const modalConfig = ref<{
   show: boolean
@@ -168,11 +178,18 @@ function openAddCard() {
 function submitCard() {
   const title = newCardTitle.value.trim()
   if (!title) return
-  store.addCard(props.column.id, title)
-  newCardTitle.value = ''
-  nextTick(() => {
-    addInputRef.value?.focus()
-  })
+  const success = store.addCard(props.column.id, title)
+  if (!success) {
+    const planLimits = store.limits[store.currentPlan as keyof typeof store.limits] || store.limits.Cheap
+    limitModalTitle.value = 'Task Limit Reached'
+    limitModalMessage.value = `You've reached the limit of ${planLimits.cards} tasks for the ${store.currentPlan} plan. Upgrade to add more tasks!`
+    showLimitModal.value = true
+  } else {
+    newCardTitle.value = ''
+    nextTick(() => {
+      addInputRef.value?.focus()
+    })
+  }
 }
 
 function cancelAdd() {
@@ -319,6 +336,15 @@ const dragOptions = {
       </div>
     </div>
     <button v-else class="btn-add-card" @click="openAddCard">+ Add card</button>
+
+    <ModalDialog
+      v-model:show="showLimitModal"
+      :title="limitModalTitle"
+      :message="limitModalMessage"
+      confirm-text="Upgrade Now"
+      cancel-text="Maybe Later"
+      @confirm="goToUpgrade"
+    />
 
     <ModalDialog
       v-model:show="modalConfig.show"

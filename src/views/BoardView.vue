@@ -2,16 +2,23 @@
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import KanbanColumn from '@/components/KanbanColumn.vue'
+import ModalDialog from '@/components/ModalDialog.vue'
 import { useTheme } from '@/composables/useTheme'
+import { useRouter } from 'vue-router'
 
 const store = useBoardStore()
 const { isDark, toggleTheme } = useTheme()
+const router = useRouter()
 
 const newColumnTitle = ref('New Column')
 const isEditingBoardName = ref(false)
 const editingBoardName = ref('')
 const boardNameInput = ref<HTMLInputElement | null>(null)
 const showMenu = ref(false)
+
+const showLimitModal = ref(false)
+const limitModalTitle = ref('')
+const limitModalMessage = ref('')
 
 function closeMenu() {
   showMenu.value = false
@@ -61,14 +68,33 @@ function cancelEditingBoardName() {
 function addNewColumn() {
   const title = newColumnTitle.value.trim()
   if (title) {
-    store.addColumn(title)
-    newColumnTitle.value = 'New Column'
+    const success = store.addColumn(title)
+    if (!success) {
+      const planLimits = store.limits[store.currentPlan] || store.limits.Cheap
+      limitModalTitle.value = 'Column Limit Reached'
+      limitModalMessage.value = `You've reached the limit of ${planLimits.columns} columns for the ${store.currentPlan} plan. Upgrade to add more columns!`
+      showLimitModal.value = true
+    } else {
+      newColumnTitle.value = 'New Column'
+    }
   }
+}
+
+function goToUpgrade() {
+  router.push('/payment')
 }
 </script>
 
 <template>
   <main class="board-view">
+    <ModalDialog
+      v-model:show="showLimitModal"
+      :title="limitModalTitle"
+      :message="limitModalMessage"
+      confirm-text="Upgrade Now"
+      cancel-text="Maybe Later"
+      @confirm="goToUpgrade"
+    />
     <div class="board-header">
       <h1 v-if="!isEditingBoardName" class="board-title" @click="startEditingBoardName">
         {{ store.boardName }}
@@ -84,6 +110,11 @@ function addNewColumn() {
         maxlength="50"
       />
       <div class="header-actions">
+        <div class="current-plan-tag">{{ store.currentPlan }} Plan</div>
+        <RouterLink to="/payment" class="btn-upgrade">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Upgrade
+        </RouterLink>
         <button
           class="btn-theme-toggle"
           @click="toggleTheme"
@@ -277,6 +308,39 @@ function addNewColumn() {
 
 .delete-item:hover {
   background: var(--color-delete-bg);
+}
+
+.current-plan-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  background: var(--color-bg-primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 2px solid var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-upgrade {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btn-upgrade:hover {
+  background: var(--color-accent-hover);
 }
 
 .btn-theme-toggle {
